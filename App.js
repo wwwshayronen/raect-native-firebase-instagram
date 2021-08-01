@@ -10,6 +10,7 @@ import Register from "./components/auth/Register";
 import Login from "./components/auth/Login";
 import Main from "./components/Main";
 import Add from "./components/main/Add";
+import Save from "./components/main/Save";
 import { ENV } from "./envVars";
 
 import { Provider } from "react-redux";
@@ -26,7 +27,8 @@ if (firebase.default.apps.length === 0) {
 }
 
 const Stack = createStackNavigator();
-export default function App() {
+
+export default function App(props) {
   const [loaded, setLoaded] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
 
@@ -86,6 +88,12 @@ export default function App() {
           <Stack.Screen
             name="Add"
             component={Add}
+            navigation={props.navigation}
+          />
+          <Stack.Screen
+            name="Save"
+            component={Save}
+            navigation={props.navigation}
           />
         </Stack.Navigator>
       </NavigationContainer>
