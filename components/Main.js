@@ -3,11 +3,18 @@ import { View, Text } from "react-native";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
+import firebase from "firebase";
+
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { fetchUser } from "../redux/actions/index";
+import {
+  fetchUser,
+  fetchUserPosts,
+  fetchUserFollowing,
+} from "../redux/actions/index";
 import Feed from "./main/Feed";
 import Profile from "./main/Profile";
+import Search from "./main/Search";
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -16,6 +23,8 @@ const EmptyScreen = () => null;
 const Main = (props) => {
   useEffect(() => {
     props.fetchUser();
+    props.fetchUserPosts();
+    props.fetchUserFollowing();
   }, []);
 
   return (
@@ -30,12 +39,23 @@ const Main = (props) => {
         }}
       />
       <Tab.Screen
+        name="Search"
+        component={Search}
+        navigation={props.navigation}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="magnify" color={color} size={26} />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="AddContainer"
         component={EmptyScreen}
+        navigation={props.navigation}
         listeners={({ navigation }) => ({
           tabPress: (event) => {
             event.preventDefault();
-            navigation.navigate("Add")
+            navigation.navigate("Add");
           },
         })}
         options={{
@@ -47,6 +67,14 @@ const Main = (props) => {
       <Tab.Screen
         name="Profile"
         component={Profile}
+        listeners={({ navigation }) => ({
+          tabPress: (event) => {
+            event.preventDefault();
+            navigation.navigate("Profile", {
+              uid: firebase.auth().currentUser.uid,
+            });
+          },
+        })}
         options={{
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
@@ -65,6 +93,9 @@ const mapSateToProps = (store) => ({
   currentUser: store.userState.currentUser,
 });
 const mapDispatchProps = (dispatch) =>
-  bindActionCreators({ fetchUser }, dispatch);
+  bindActionCreators(
+    { fetchUser, fetchUserPosts, fetchUserFollowing },
+    dispatch
+  );
 
 export default connect(mapSateToProps, mapDispatchProps)(Main);
